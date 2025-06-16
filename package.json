@@ -1,0 +1,25 @@
+{
+  "name": "pin-verification-functions",
+  "version": "1.0.0",
+  "description": "Netlify function for Pin Verification",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Your Name",
+  "license": "ISC",
+  "dependencies": {
+    "jsonwebtoken": "^9.0.2",
+    "node-fetch": "^2.7.0",
+    "firebase-admin": "^12.0.0"  // <--- Add this line
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/YaminDeveloper/Pin-Verification.git"
+  },
+  "keywords": [],
+  "bugs": {
+    "url": "https://github.com/YaminDeveloper/Pin-Verification/issues"
+  },
+  "homepage": "https://github.com/YaminDeveloper/Pin-Verification#readme"
+}
