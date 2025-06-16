@@ -1,6 +1,6 @@
 const fetch = require('node-fetch');
 
-const CONFIG_URL = "https://raw.githubusercontent.com/YaminDeveloper/Pin-Verification/main/config.json";
+const CONFIG_URL = "https://raw.githubusercontent.com/Ansarirose163/PinAds/refs/heads/main/config.json";
 
 exports.handler = async function(event) {
     if (event.httpMethod !== 'POST') {
