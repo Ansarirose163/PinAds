@@ -1,0 +1,10 @@
+{
+  "name": "pinads",
+  "version": "1.0.0",
+  "description": "PinAds backend for device verification",
+  "main": "index.js",
+  "dependencies": {
+    "jsonwebtoken": "^9.0.0",
+    "node-fetch": "^2.6.7"
+  }
+}
