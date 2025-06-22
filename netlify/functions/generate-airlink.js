@@ -18,29 +18,36 @@ exports.handler = async (event) => {
     }
 
     const AIRLINK_API_KEY = process.env.AIRLINK_API_KEY;
-    const response = await fetch('https://api.airlink.io/shorten', {
-      method: 'POST',
-      headers: { 'Authorization': `Bearer ${AIRLINK_API_KEY}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ long_url }),
+    if (!AIRLINK_API_KEY) {
+      throw new Error('AIRLINK_API_KEY not configured');
+    }
+
+    const apiUrl = `https://arlinks.in/api?api=${AIRLINK_API_KEY}&url=${encodeURIComponent(long_url)}&format=text`;
+    const response = await fetch(apiUrl, {
+      method: 'GET',
+      headers: { 'Content-Type': 'text/plain' },
     });
 
-    const data = await response.json();
-    if (response.ok) {
+    const text = await response.text();
+    if (response.ok && text.startsWith('https://arlinks.in/')) {
       return {
         statusCode: 200,
-        body: JSON.stringify({ short_url: data.short_url }),
+        body: JSON.stringify({ short_url: text.trim() }),
       };
     } else {
+      // Fallback to JSON response for error details
+      const jsonResponse = await fetch(`${apiUrl}&format=json`);
+      const jsonData = await jsonResponse.json();
       return {
         statusCode: response.status,
-        body: JSON.stringify({ error: data.error || 'Failed to shorten URL' }),
+        body: JSON.stringify({ error: jsonData.message || 'Failed to shorten URL' }),
       };
     }
   } catch (error) {
     console.error('Airlink error:', error.message);
     return {
       statusCode: 500,
-      body: JSON.stringify({ error: 'Internal Server Error' }),
+      body: JSON.stringify({ error: 'Internal Server Error: ' + error.message }),
     };
   }
 };
