@@ -1,4 +1,3 @@
-// checkVerification.js
 const { isDeviceVerified } = require('./verifiedDevices');
 
 exports.handler = async function(event) {
