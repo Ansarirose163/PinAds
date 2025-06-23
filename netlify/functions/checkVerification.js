@@ -1,36 +1,15 @@
-// Simple in-memory store for demo, replace with DB or persistent store
-let verifiedDevices = {};
-
 exports.handler = async function(event) {
-  const headers = {
-    'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Headers': 'Content-Type',
-    'Access-Control-Allow-Methods': 'GET, OPTIONS'
-  };
+  const { deviceId } = event.queryStringParameters;
 
-  if (event.httpMethod === 'OPTIONS') {
-    return { statusCode: 204, headers, body: '' };
-  }
-
-  if (event.httpMethod !== 'GET') {
-    return { statusCode: 405, headers, body: 'Method Not Allowed' };
-  }
-
-  const deviceId = event.queryStringParameters?.deviceId;
-
-  if (!deviceId) {
+  if (deviceId === "eaf400fd0094fc9f") {
     return {
-      statusCode: 400,
-      headers,
-      body: JSON.stringify({ error: 'deviceId required' })
+      statusCode: 200,
+      body: JSON.stringify({ verified: true })
     };
   }
 
-  const isVerified = !!verifiedDevices[deviceId];
-
   return {
     statusCode: 200,
-    headers,
-    body: JSON.stringify({ verified: isVerified })
+    body: JSON.stringify({ verified: false })
   };
 };
