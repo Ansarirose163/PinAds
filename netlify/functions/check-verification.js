@@ -1,7 +1,4 @@
-const { nanoid } = require('nanoid');
-
-// In-memory storage for demo (replace with DB in production)
-const verificationStore = {};
+const verificationDB = new Map();
 
 exports.handler = async (event) => {
     const { deviceId } = event.queryStringParameters || {};
@@ -14,28 +11,12 @@ exports.handler = async (event) => {
     }
 
     try {
-        // Initialize if not exists
-        if (!verificationStore[deviceId]) {
-            verificationStore[deviceId] = {
-                verified: false,
-                token: `${deviceId}-${nanoid(10)}`,
-                createdAt: Date.now()
-            };
-            
-            // Simulate verification after 5 seconds (replace with actual verification logic)
-            setTimeout(() => {
-                verificationStore[deviceId].verified = true;
-            }, 5000);
-        }
-
+        const verification = verificationDB.get(deviceId) || { verified: false };
         return {
             statusCode: 200,
             body: JSON.stringify({
-                verified: verificationStore[deviceId].verified,
-                token: verificationStore[deviceId].token,
-                message: verificationStore[deviceId].verified 
-                    ? "Verification successful" 
-                    : "Verification in progress (5 seconds)"
+                verified: verification.verified,
+                deviceId: deviceId
             })
         };
     } catch (error) {
