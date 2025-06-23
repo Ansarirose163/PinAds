@@ -1,12 +1,20 @@
+// checkVerification.js
 const { isDeviceVerified } = require('./verifiedDevices');
 
 exports.handler = async function(event) {
-  const deviceId = event.queryStringParameters.deviceId;
+  if (event.httpMethod !== 'GET') {
+    return {
+      statusCode: 405,
+      body: JSON.stringify({ error: 'Method Not Allowed' }),
+    };
+  }
+
+  const deviceId = event.queryStringParameters?.deviceId;
 
   if (!deviceId) {
     return {
       statusCode: 400,
-      body: JSON.stringify({ error: 'Device ID is required' }),
+      body: JSON.stringify({ error: 'deviceId required' }),
     };
   }
 
