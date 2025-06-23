@@ -4,68 +4,96 @@
     <title>Verify Device</title>
     <link rel="stylesheet" href="/style.css">
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const urlParams = new URLSearchParams(window.location.search);
-            const deviceId = urlParams.get('deviceId');
-            const statusElement = document.getElementById('status');
-            
-            if (deviceId) {
-                checkVerificationStatus(deviceId);
-            } else {
-                statusElement.innerHTML = '<p style="color:red;">Error: No device ID found</p>';
+    document.addEventListener('DOMContentLoaded', () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const deviceId = urlParams.get('deviceId');
+        const statusElement = document.getElementById('status');
+        
+        if (!deviceId) {
+            statusElement.innerHTML = '<p class="error">Error: Missing device ID</p>';
+            return;
+        }
+
+        let verificationChecked = false;
+        const maxAttempts = 10;
+        let attempts = 0;
+
+        function checkVerification() {
+            if (attempts >= maxAttempts) {
+                statusElement.innerHTML = '<p class="error">Verification timeout. Please try again.</p>';
+                return;
             }
 
-            function checkVerificationStatus(deviceId) {
-                fetch(`/.netlify/functions/check-verification?deviceId=${deviceId}`)
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.verified) {
-                            statusElement.innerHTML = `
-                                <h2 style="color:green;">✓ Verification Successful!</h2>
-                                <p>You can now return to the app</p>
-                                <p>This window will close automatically in 3 seconds</p>
-                            `;
-                            setTimeout(() => window.close(), 3000);
-                        } else {
-                            statusElement.innerHTML = `
-                                <h3>Verification in progress...</h3>
-                                <p>${data.message}</p>
-                                <div class="loader"></div>
-                                <p>Please wait, this may take a few seconds</p>
-                            `;
-                            setTimeout(() => checkVerificationStatus(deviceId), 2000);
-                        }
-                    })
-                    .catch(error => {
+            fetch(`/.netlify/functions/verify-complete?deviceId=${deviceId}`)
+                .then(response => response.json())
+                .then(data => {
+                    attempts++;
+                    
+                    if (data.verified) {
                         statusElement.innerHTML = `
-                            <p style="color:red;">Error: ${error.message}</p>
-                            <button onclick="location.reload()">Try Again</button>
+                            <div class="success">
+                                <h2>✓ Verification Successful!</h2>
+                                <p>You can now return to the app</p>
+                                <p>This window will close automatically</p>
+                            </div>
                         `;
-                    });
-            }
-        });
+                        setTimeout(() => window.close(), 3000);
+                    } else if (data.verificationStarted) {
+                        statusElement.innerHTML = `
+                            <div class="loading">
+                                <h3>Verification in Progress</h3>
+                                <p>${data.message}</p>
+                                <div class="spinner"></div>
+                                <p>Attempt ${attempts} of ${maxAttempts}</p>
+                            </div>
+                        `;
+                        setTimeout(checkVerification, 3000);
+                    } else {
+                        statusElement.innerHTML = `
+                            <div class="loading">
+                                <h3>Starting Verification...</h3>
+                                <div class="spinner"></div>
+                            </div>
+                        `;
+                        setTimeout(checkVerification, 2000);
+                    }
+                })
+                .catch(error => {
+                    statusElement.innerHTML = `
+                        <p class="error">Error: ${error.message}</p>
+                        <button onclick="checkVerification()">Retry</button>
+                    `;
+                });
+        }
+
+        // Start initial check
+        checkVerification();
+    });
     </script>
     <style>
-        .loader {
-            border: 5px solid #f3f3f3;
-            border-top: 5px solid #4CAF50;
-            border-radius: 50%;
-            width: 50px;
-            height: 50px;
-            animation: spin 2s linear infinite;
-            margin: 20px auto;
-        }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
+    .success { color: green; text-align: center; }
+    .error { color: red; }
+    .loading { text-align: center; }
+    .spinner {
+        border: 5px solid #f3f3f3;
+        border-top: 5px solid #3498db;
+        border-radius: 50%;
+        width: 50px;
+        height: 50px;
+        animation: spin 2s linear infinite;
+        margin: 20px auto;
+    }
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>Device Verification</h1>
         <div id="status">
-            <p>Starting verification process...</p>
+            <p>Initializing verification...</p>
         </div>
     </div>
 </body>
