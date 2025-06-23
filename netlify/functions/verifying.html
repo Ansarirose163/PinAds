@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Verifying</title>
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const deviceId = new URLSearchParams(window.location.search).get('deviceId');
+        let attempts = 0;
+        const maxAttempts = 10;
+
+        function checkVerification() {
+            if (attempts >= maxAttempts) {
+                window.location.href = "/failed.html?reason=timeout";
+                return;
+            }
+
+            fetch(`/.netlify/functions/check-verification?deviceId=${deviceId}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.verified) {
+                        window.location.href = "/success.html";
+                    } else {
+                        attempts++;
+                        setTimeout(checkVerification, 2000);
+                    }
+                })
+                .catch(() => {
+                    window.location.href = "/failed.html?reason=connection_error";
+                });
+        }
+
+        // Start checking
+        setTimeout(checkVerification, 5000);
+    });
+    </script>
+</head>
+<body>
+    <h1>Verifying Your Device</h1>
+    <p>Please wait while we verify your device...</p>
+</body>
+</html>
