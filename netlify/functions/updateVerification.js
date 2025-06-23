@@ -1,6 +1,8 @@
 const fs = require('fs');
 const path = require('path');
+
 const DB_PATH = path.join(__dirname, 'verified-devices.json');
+
 exports.handler = async function(event) {
   if (event.httpMethod !== 'POST') {
     return { statusCode: 405, body: 'Method Not Allowed' };
