@@ -1,4 +1,6 @@
-// In-memory store for verified device IDs
+// verifiedDevices.js
+// Simple in-memory verified device list (demo purpose)
+
 const verifiedDevices = new Set();
 
 function addDevice(deviceId) {
@@ -9,7 +11,4 @@ function isDeviceVerified(deviceId) {
   return verifiedDevices.has(deviceId);
 }
 
-module.exports = {
-  addDevice,
-  isDeviceVerified
-};
+module.exports = { addDevice, isDeviceVerified };
