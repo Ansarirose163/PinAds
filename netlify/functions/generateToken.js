@@ -6,7 +6,7 @@ exports.handler = async function(event) {
   const headers = {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Headers': 'Content-Type',
-    'Access-Control-Allow-Methods': 'POST, OPTIONS'
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
   };
 
   if (event.httpMethod === 'OPTIONS') {
@@ -24,27 +24,23 @@ exports.handler = async function(event) {
       return {
         statusCode: 400,
         headers,
-        body: JSON.stringify({ error: 'Device ID and verification token are required.' })
+        body: JSON.stringify({ error: 'Device ID and verification token required.' }),
       };
     }
 
-    const token = jwt.sign(
-      { deviceId, verification_token },
-      JWT_SECRET,
-      { expiresIn: '5m' }
-    );
+    // Create JWT token valid for 5 minutes
+    const token = jwt.sign({ deviceId, verification_token }, JWT_SECRET, { expiresIn: '5m' });
 
     return {
       statusCode: 200,
       headers,
-      body: JSON.stringify({ token })
+      body: JSON.stringify({ token }),
     };
-
   } catch (error) {
     return {
       statusCode: 500,
       headers,
-      body: JSON.stringify({ error: error.message })
+      body: JSON.stringify({ error: error.message }),
     };
   }
 };
