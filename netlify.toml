@@ -1,6 +1,8 @@
 [build]
   functions = "netlify/functions"
-  publish = "."         # Publish root directory (जहाँ verify.html है)
+  publish = "."
 
-[dev]
-  functions = "netlify/functions"
+[[redirects]]
+  from = "/verify.html"
+  to = "/verify.html"
+  status = 200
