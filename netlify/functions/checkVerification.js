@@ -1,6 +1,8 @@
 const fs = require('fs');
 const path = require('path');
+
 const DB_PATH = path.join(__dirname, 'verified-devices.json');
+
 exports.handler = async function(event) {
   const deviceId = event.queryStringParameters?.deviceId;
   if (!deviceId) {
