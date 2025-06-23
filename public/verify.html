@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Verification Page</title>
+<script>
+  async function markVerified() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const token = urlParams.get('token');
+
+    if (!token) {
+      document.getElementById('status').textContent = 'Invalid or missing token.';
+      return;
+    }
+
+    // Decode JWT token to get deviceId (for demo, skipping real decode)
+    // You may pass deviceId as query param too or decode on backend
+
+    // Here, just simulate deviceId extraction for demo:
+    const deviceId = prompt('Please enter your device ID (for demo only):');
+
+    if (!deviceId) {
+      document.getElementById('status').textContent = 'Device ID required for verification.';
+      return;
+    }
+
+    const resp = await fetch('/.netlify/functions/updateVerification', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ deviceId })
+    });
+
+    if (resp.ok) {
+      document.getElementById('status').textContent = 'Verification successful! Redirecting...';
+      setTimeout(() => {
+        window.location.href = '/welcome.html';
+      }, 2000);
+    } else {
+      document.getElementById('status').textContent = 'Verification failed.';
+    }
+  }
+</script>
+</head>
+<body style="font-family:sans-serif; text-align:center; padding:50px;">
+  <h1>Verify Your Device</h1>
+  <p id="status">Click the button below to complete verification.</p>
+  <button onclick="markVerified()" style="padding:10px 20px; font-size:18px;">Complete Verification</button>
+</body>
+</html>
