@@ -1,3 +1,4 @@
+// In-memory store for verified device IDs
 const verifiedDevices = new Set();
 
 function addDevice(deviceId) {
