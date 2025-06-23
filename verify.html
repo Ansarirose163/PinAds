@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Verification Success</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      text-align: center;
+      padding-top: 100px;
+      background-color: #f0fff0;
+    }
+    h1 {
+      color: green;
+      font-size: 24px;
+    }
+  </style>
+</head>
+<body>
+  <h1 id="msg">🔐 Verifying...</h1>
+  <script>
+    async function verifyUser() {
+      const token = new URLSearchParams(window.location.search).get("token");
+      if (!token) {
+        document.getElementById("msg").innerText = "❌ Token missing!";
+        return;
+      }
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        const deviceId = payload.deviceId;
+        await fetch("/.netlify/functions/updateVerification", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ deviceId })
+        });
+        document.getElementById("msg").innerText = "✅ Verification Success!";
+      } catch (e) {
+        document.getElementById("msg").innerText = "❌ Verification failed!";
+      }
+    }
+    verifyUser();
+  </script>
+</body>
+</html>
