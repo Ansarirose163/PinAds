@@ -1,20 +1,34 @@
-const fs = require('fs');
-const path = require('path');
+const admin = require('firebase-admin');
+const serviceAccount = require('./serviceAccountKey.json');
 
-const DB_PATH = path.join(__dirname, 'verified-devices.json');
+if (!admin.apps.length) {
+  admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount),
+    databaseURL: "https://badpinverify-default-rtdb.firebaseio.com"
+  });
+}
 
-exports.handler = async function(event) {
-  const deviceId = event.queryStringParameters?.deviceId;
+exports.handler = async function (event) {
+  const { deviceId } = event.queryStringParameters;
+
   if (!deviceId) {
-    return { statusCode: 400, body: 'Missing deviceId' };
+    return {
+      statusCode: 400,
+      body: JSON.stringify({ error: "Missing deviceId" })
+    };
   }
-  let data = {};
-  if (fs.existsSync(DB_PATH)) {
-    data = JSON.parse(fs.readFileSync(DB_PATH, 'utf8'));
+
+  try {
+    const snapshot = await admin.database().ref(`verifiedDevices/${deviceId}`).once('value');
+    const data = snapshot.val();
+    return {
+      statusCode: 200,
+      body: JSON.stringify({ verified: !!(data && data.verified) })
+    };
+  } catch (error) {
+    return {
+      statusCode: 500,
+      body: JSON.stringify({ error: error.message })
+    };
   }
-  const verified = !!data[deviceId];
-  return {
-    statusCode: 200,
-    body: JSON.stringify({ verified })
-  };
 };

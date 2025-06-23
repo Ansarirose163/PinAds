@@ -1,28 +1,37 @@
-const fs = require('fs');
-const path = require('path');
+const admin = require('firebase-admin');
+const serviceAccount = require('./serviceAccountKey.json');
 
-const DB_PATH = path.join(__dirname, 'verified-devices.json');
+if (!admin.apps.length) {
+  admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount),
+    databaseURL: "https://badpinverify-default-rtdb.firebaseio.com"
+  });
+}
 
-exports.handler = async function(event) {
-  if (event.httpMethod !== 'POST') {
-    return { statusCode: 405, body: 'Method Not Allowed' };
+exports.handler = async function (event) {
+  const { deviceId } = JSON.parse(event.body || '{}');
+
+  if (!deviceId) {
+    return {
+      statusCode: 400,
+      body: JSON.stringify({ error: "Missing deviceId" })
+    };
   }
+
   try {
-    const { deviceId } = JSON.parse(event.body || '{}');
-    if (!deviceId) {
-      return { statusCode: 400, body: 'Missing deviceId' };
-    }
-    let data = {};
-    if (fs.existsSync(DB_PATH)) {
-      data = JSON.parse(fs.readFileSync(DB_PATH, 'utf8'));
-    }
-    data[deviceId] = true;
-    fs.writeFileSync(DB_PATH, JSON.stringify(data, null, 2));
+    await admin.database().ref(`verifiedDevices/${deviceId}`).set({
+      verified: true,
+      timestamp: Date.now()
+    });
+
     return {
       statusCode: 200,
       body: JSON.stringify({ success: true })
     };
-  } catch (err) {
-    return { statusCode: 500, body: err.message };
+  } catch (error) {
+    return {
+      statusCode: 500,
+      body: JSON.stringify({ error: error.message })
+    };
   }
 };
