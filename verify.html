@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Verification Page</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+    margin-top: 50px;
+    background-color: #f0f8ff;
+    color: #2e8b57;
+  }
+  #status {
+    font-size: 28px;
+    font-weight: bold;
+    margin-bottom: 20px;
+    display: none;
+  }
+  #error {
+    font-size: 20px;
+    color: red;
+    display: none;
+  }
+</style>
+</head>
+<body>
+<h1>Verifying your device...</h1>
+<div id="status">✅ Verification Successful! Welcome to Badpin App 🎉</div>
+<div id="error"></div>
+
+<script>
+(async () => {
+  const params = new URLSearchParams(window.location.search);
+  const token = params.get('token');
+  if (!token) {
+    document.getElementById('error').textContent = 'Token missing in URL.';
+    document.getElementById('error').style.display = 'block';
+    return;
+  }
+
+  try {
+    const res = await fetch('/.netlify/functions/verifyToken', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ token })
+    });
+
+    const data = await res.json();
+
+    if (data.status === 'ok' && data.deviceId) {
+      document.getElementById('status').style.display = 'block';
+    } else {
+      document.getElementById('error').textContent = 'Verification failed.';
+      document.getElementById('error').style.display = 'block';
+    }
+  } catch (e) {
+    document.getElementById('error').textContent = 'Server error: ' + e.message;
+    document.getElementById('error').style.display = 'block';
+  }
+})();
+</script>
+</body>
+</html>
