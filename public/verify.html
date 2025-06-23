@@ -1,49 +1,57 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<title>Verification Page</title>
-<script>
-  async function markVerified() {
-    const urlParams = new URLSearchParams(window.location.search);
-    const token = urlParams.get('token');
-
-    if (!token) {
-      document.getElementById('status').textContent = 'Invalid or missing token.';
-      return;
+  <meta charset="UTF-8">
+  <title>Verification</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      text-align: center;
+      margin-top: 50px;
     }
-
-    // Decode JWT token to get deviceId (for demo, skipping real decode)
-    // You may pass deviceId as query param too or decode on backend
-
-    // Here, just simulate deviceId extraction for demo:
-    const deviceId = prompt('Please enter your device ID (for demo only):');
-
-    if (!deviceId) {
-      document.getElementById('status').textContent = 'Device ID required for verification.';
-      return;
+    .hidden {
+      display: none;
     }
-
-    const resp = await fetch('/.netlify/functions/updateVerification', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ deviceId })
-    });
-
-    if (resp.ok) {
-      document.getElementById('status').textContent = 'Verification successful! Redirecting...';
-      setTimeout(() => {
-        window.location.href = '/welcome.html';
-      }, 2000);
-    } else {
-      document.getElementById('status').textContent = 'Verification failed.';
+    .success {
+      font-size: 24px;
+      color: green;
+      margin-top: 20px;
     }
-  }
-</script>
+  </style>
 </head>
-<body style="font-family:sans-serif; text-align:center; padding:50px;">
-  <h1>Verify Your Device</h1>
-  <p id="status">Click the button below to complete verification.</p>
-  <button onclick="markVerified()" style="padding:10px 20px; font-size:18px;">Complete Verification</button>
+<body>
+  <h1>Verifying your device...</h1>
+  <div id="status" class="success hidden">✅ Verification Successful!</div>
+
+  <script>
+    async function verify() {
+      const params = new URLSearchParams(window.location.search);
+      const token = params.get("token");
+
+      if (!token) {
+        document.body.innerHTML = "<h2>❌ Token not found in URL.</h2>";
+        return;
+      }
+
+      try {
+        const response = await fetch("https://badpin.netlify.app/.netlify/functions/verifyToken", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ token: token })
+        });
+
+        const result = await response.json();
+        if (result.status === "ok" && result.deviceId) {
+          document.getElementById("status").classList.remove("hidden");
+        } else {
+          document.body.innerHTML = "<h2>❌ Verification failed.</h2>";
+        }
+      } catch (err) {
+        document.body.innerHTML = "<h2>❌ Server Error: " + err.message + "</h2>";
+      }
+    }
+
+    verify();
+  </script>
 </body>
 </html>
