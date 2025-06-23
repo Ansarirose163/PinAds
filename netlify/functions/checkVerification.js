@@ -1,25 +1,36 @@
-// Simple in-memory store for demonstration (replace with DB in prod)
-const verifiedDevices = new Set();
+// Simple in-memory store for demo, replace with DB or persistent store
+let verifiedDevices = {};
 
 exports.handler = async function(event) {
   const headers = {
     'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Headers': 'Content-Type',
+    'Access-Control-Allow-Methods': 'GET, OPTIONS'
   };
 
-  const deviceId = event.queryStringParameters && event.queryStringParameters.deviceId;
+  if (event.httpMethod === 'OPTIONS') {
+    return { statusCode: 204, headers, body: '' };
+  }
+
+  if (event.httpMethod !== 'GET') {
+    return { statusCode: 405, headers, body: 'Method Not Allowed' };
+  }
+
+  const deviceId = event.queryStringParameters?.deviceId;
+
   if (!deviceId) {
     return {
       statusCode: 400,
       headers,
-      body: JSON.stringify({ error: 'deviceId required' }),
+      body: JSON.stringify({ error: 'deviceId required' })
     };
   }
 
-  // Return verification status
-  const verified = verifiedDevices.has(deviceId);
+  const isVerified = !!verifiedDevices[deviceId];
+
   return {
     statusCode: 200,
     headers,
-    body: JSON.stringify({ verified }),
+    body: JSON.stringify({ verified: isVerified })
   };
 };
