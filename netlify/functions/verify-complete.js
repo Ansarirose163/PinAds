@@ -1,7 +1,7 @@
 const { nanoid } = require('nanoid');
 
-// In-memory storage (replace with DB in production)
-const verifications = {};
+// Database simulation
+const verificationDB = new Map();
 
 exports.handler = async (event) => {
     const { deviceId } = event.queryStringParameters || {};
@@ -12,57 +12,79 @@ exports.handler = async (event) => {
             body: JSON.stringify({ 
                 error: "Device ID required",
                 verified: false,
-                verificationStarted: false
+                verificationStep: 0 
             })
         };
     }
 
     try {
-        // Initialize verification if not exists
-        if (!verifications[deviceId]) {
-            verifications[deviceId] = {
-                verified: false,
-                verificationStarted: false,
+        if (!verificationDB.has(deviceId)) {
+            // Initialize new verification
+            verificationDB.set(deviceId, {
+                step: 1,
                 token: nanoid(32),
-                timestamp: Date.now()
-            };
-            
-            // Simulate verification delay (8-15 seconds)
-            const delay = 8000 + Math.random() * 7000;
-            setTimeout(() => {
-                verifications[deviceId].verified = true;
-                verifications[deviceId].verificationStarted = true;
-                console.log(`Device ${deviceId} fully verified at ${new Date()}`);
-            }, delay);
+                startTime: Date.now(),
+                verified: false
+            });
             
             return {
                 statusCode: 200,
                 body: JSON.stringify({
                     verified: false,
-                    verificationStarted: false,
-                    message: "Verification process started"
+                    verificationStep: 1,
+                    message: "Verification started"
                 })
             };
         }
 
-        // After initialization
+        const verification = verificationDB.get(deviceId);
+        
+        // Progressive verification - minimum 3 steps with delays
+        if (verification.step < 3) {
+            verification.step++;
+            verificationDB.set(deviceId, verification);
+            
+            return {
+                statusCode: 200,
+                body: JSON.stringify({
+                    verified: false,
+                    verificationStep: verification.step,
+                    message: `Verification step ${verification.step}/3`
+                })
+            };
+        }
+
+        // Only verify after all steps + minimum 8 seconds
+        if (Date.now() - verification.startTime >= 8000) {
+            verification.verified = true;
+            verificationDB.set(deviceId, verification);
+            
+            return {
+                statusCode: 200,
+                body: JSON.stringify({
+                    verified: true,
+                    verificationStep: 4,
+                    message: "Verification complete"
+                })
+            };
+        }
+
         return {
             statusCode: 200,
             body: JSON.stringify({
-                verified: verifications[deviceId].verified,
-                verificationStarted: verifications[deviceId].verificationStarted,
-                message: verifications[deviceId].verified 
-                    ? "Verification completed successfully" 
-                    : "Verification in progress"
+                verified: false,
+                verificationStep: verification.step,
+                message: "Finalizing verification..."
             })
         };
+
     } catch (error) {
         return {
             statusCode: 500,
             body: JSON.stringify({ 
                 error: error.message,
                 verified: false,
-                verificationStarted: false
+                verificationStep: 0
             })
         };
     }
