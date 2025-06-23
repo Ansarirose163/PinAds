@@ -1,9 +1,7 @@
 {
-  "name": "badpin-verification",
+  "name": "netlify-functions",
   "version": "1.0.0",
   "dependencies": {
-    "jsonwebtoken": "^9.0.0",
-    "nanoid": "^4.0.0",
-    "node-fetch": "^2.6.7"
+    "jsonwebtoken": "^9.0.0"
   }
 }
