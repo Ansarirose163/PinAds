@@ -1,82 +1,23 @@
-<script>
-document.addEventListener('DOMContentLoaded', () => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const deviceId = urlParams.get('deviceId');
-    const statusEl = document.getElementById('status');
-    
-    if (!deviceId) {
-        statusEl.innerHTML = '<p class="error">Error: No device ID found</p>';
-        return;
-    }
-
-    let attempts = 0;
-    const maxAttempts = 15; // 15 attempts × 2 seconds = 30 seconds max
-    
-    function checkVerification() {
-        if (attempts >= maxAttempts) {
-            statusEl.innerHTML = `
-                <div class="error">
-                    <h3>Verification Timeout</h3>
-                    <p>Please try again later</p>
-                    <button onclick="window.close()">Close</button>
-                </div>
-            `;
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Verification</title>
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const deviceId = urlParams.get('deviceId');
+        
+        if (!deviceId) {
+            window.location.href = "https://badpin.netlify.app/failed.html?reason=no_device_id";
             return;
         }
 
-        fetch(`/.netlify/functions/verify-complete?deviceId=${deviceId}`)
-            .then(response => response.json())
-            .then(data => {
-                attempts++;
-                
-                if (data.verified) {
-                    statusEl.innerHTML = `
-                        <div class="success">
-                            <h2>✓ Verification Complete</h2>
-                            <p>This window will close automatically</p>
-                        </div>
-                    `;
-                    setTimeout(() => window.close(), 2000);
-                } else {
-                    statusEl.innerHTML = `
-                        <div class="progress">
-                            <h3>Step ${data.verificationStep || 1} of 3</h3>
-                            <p>${data.message}</p>
-                            <div class="progress-bar">
-                                <div style="width: ${Math.min(100, attempts*7)}%"></div>
-                            </div>
-                            <p>Attempt ${attempts} of ${maxAttempts}</p>
-                        </div>
-                    `;
-                    setTimeout(checkVerification, 2000);
-                }
-            })
-            .catch(error => {
-                statusEl.innerHTML = `
-                    <div class="error">
-                        <p>Connection error</p>
-                        <button onclick="checkVerification()">Retry</button>
-                    </div>
-                `;
-            });
-    }
-
-    // Start verification checks
-    checkVerification();
-});
-</script>
-
-<style>
-.progress-bar {
-    background: #f0f0f0;
-    height: 20px;
-    border-radius: 10px;
-    margin: 15px 0;
-}
-.progress-bar div {
-    background: #4CAF50;
-    height: 100%;
-    border-radius: 10px;
-    transition: width 0.3s;
-}
-</style>
+        // Immediately redirect to verification processing
+        window.location.href = `https://badpin.netlify.app/.netlify/functions/process-verification?deviceId=${deviceId}`;
+    });
+    </script>
+</head>
+<body>
+    <p>Redirecting to verification...</p>
+</body>
+</html>
