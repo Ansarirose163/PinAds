@@ -1,3 +1,6 @@
+const { nanoid } = require('nanoid');
+let verificationCache = {};
+
 exports.handler = async (event) => {
     const { deviceId } = event.queryStringParameters || {};
     
@@ -9,14 +12,28 @@ exports.handler = async (event) => {
     }
 
     try {
-        // In production, replace with actual database check
-        const verified = Math.random() > 0.3; // 70% success rate
+        // Agar pehle se cache mein nahi hai toh naya entry banaye
+        if (!verificationCache[deviceId]) {
+            verificationCache[deviceId] = {
+                verified: false,
+                token: `${deviceId}-${nanoid(10)}`,
+                timestamp: Date.now()
+            };
+            
+            // 5 second ke baad automatically verify ho jayega (demo ke liye)
+            setTimeout(() => {
+                verificationCache[deviceId].verified = true;
+            }, 5000);
+        }
 
         return {
             statusCode: 200,
             body: JSON.stringify({
-                verified,
-                message: verified ? "Device verified" : "Verification pending"
+                verified: verificationCache[deviceId].verified,
+                token: verificationCache[deviceId].token,
+                message: verificationCache[deviceId].verified 
+                    ? "Device verified successfully" 
+                    : "Verification in progress"
             })
         };
     } catch (error) {
