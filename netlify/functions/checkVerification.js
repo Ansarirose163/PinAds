@@ -1,10 +1,20 @@
+// checkVerification.js
 const { isDeviceVerified } = require('./verifiedDevices');
 
 exports.handler = async function(event) {
-  const { deviceId } = event.queryStringParameters;
+  const deviceId = event.queryStringParameters.deviceId;
+
+  if (!deviceId) {
+    return {
+      statusCode: 400,
+      body: JSON.stringify({ error: 'Device ID is required' }),
+    };
+  }
+
+  const verified = isDeviceVerified(deviceId);
 
   return {
     statusCode: 200,
-    body: JSON.stringify({ verified: isDeviceVerified(deviceId) })
+    body: JSON.stringify({ verified }),
   };
 };
