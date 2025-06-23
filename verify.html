@@ -4,25 +4,36 @@
   <title>Verification</title>
   <script>
     async function verifyUser() {
-      const params = new URLSearchParams(window.location.search);
-      const token = params.get("token");
+      try {
+        const params = new URLSearchParams(window.location.search);
+        const token = params.get("token");
 
-      // Decode JWT token (basic)
-      const payload = JSON.parse(atob(token.split('.')[1]));
-      const deviceId = payload.deviceId;
+        if (!token) {
+          document.getElementById("msg").innerText = "Invalid verification link.";
+          return;
+        }
 
-      // Call Netlify function to mark as verified
-      const res = await fetch("/.netlify/functions/updateVerification", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ deviceId })
-      });
+        // Decode JWT payload (basic base64 decode)
+        const payloadBase64 = token.split('.')[1];
+        const decodedPayload = JSON.parse(atob(payloadBase64));
+        const deviceId = decodedPayload.deviceId;
 
-      const data = await res.json();
-      if (data.success) {
-        document.getElementById("msg").innerText = "✅ Verification Success!";
-      } else {
-        document.getElementById("msg").innerText = "❌ Verification Failed!";
+        // Call updateVerification Netlify function
+        const response = await fetch('/.netlify/functions/updateVerification', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ deviceId }),
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          document.getElementById("msg").innerText = "✅ Verification Successful!";
+        } else {
+          document.getElementById("msg").innerText = "❌ Verification Failed!";
+        }
+      } catch (err) {
+        document.getElementById("msg").innerText = "Error: " + err.message;
       }
     }
 
