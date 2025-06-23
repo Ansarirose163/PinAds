@@ -4,28 +4,26 @@
   <title>Verification</title>
   <script>
     async function verifyUser() {
+      const params = new URLSearchParams(window.location.search);
+      const token = params.get("token");
+
+      if (!token) {
+        document.getElementById("msg").innerText = "Invalid verification link.";
+        return;
+      }
+
       try {
-        const params = new URLSearchParams(window.location.search);
-        const token = params.get("token");
+        // Decode JWT payload (base64 decode)
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        const deviceId = payload.deviceId;
 
-        if (!token) {
-          document.getElementById("msg").innerText = "Invalid verification link.";
-          return;
-        }
-
-        // Decode JWT payload (basic base64 decode)
-        const payloadBase64 = token.split('.')[1];
-        const decodedPayload = JSON.parse(atob(payloadBase64));
-        const deviceId = decodedPayload.deviceId;
-
-        // Call updateVerification Netlify function
-        const response = await fetch('/.netlify/functions/updateVerification', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ deviceId }),
+        const res = await fetch("/.netlify/functions/updateVerification", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ deviceId })
         });
 
-        const data = await response.json();
+        const data = await res.json();
 
         if (data.success) {
           document.getElementById("msg").innerText = "✅ Verification Successful!";
