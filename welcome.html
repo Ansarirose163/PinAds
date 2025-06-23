@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Welcome to Badpin App</title>
+  <style>
+    body {
+      background-color: #e6f2ff;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      text-align: center;
+      padding-top: 100px;
+      color: #0b3954;
+    }
+    h1 {
+      font-size: 3em;
+      margin-bottom: 20px;
+    }
+    p {
+      font-size: 1.5em;
+      margin-bottom: 40px;
+      color: #087e8b;
+    }
+    .emoji {
+      font-size: 5em;
+      margin-bottom: 30px;
+    }
+    button {
+      background-color: #087e8b;
+      color: white;
+      border: none;
+      padding: 15px 40px;
+      font-size: 1.2em;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    button:hover {
+      background-color: #05545b;
+    }
+  </style>
+</head>
+<body>
+  <div class="emoji">🎉✅</div>
+  <h1>Verification Successful!</h1>
+  <p>Welcome to the Badpin App. You have been successfully verified.</p>
+  <button onclick="goToApp()">Start Using App</button>
+
+  <script>
+    function goToApp() {
+      // यहां आप अपनी ऐप का मुख्य URL डालें, या किसी लिंक पर Redirect करें
+      window.location.href = "https://badpin.netlify.app"; 
+    }
+  </script>
+</body>
+</html>
