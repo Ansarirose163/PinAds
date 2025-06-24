@@ -1,13 +1,25 @@
-{
-  "type": "service_account",
-  "project_id": "badpinverify-fc046",
-  "private_key_id": "6d2f1c66cb54763dd3c5b995c159e08a9d5b52b1",
-  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQCwlqM6FgRcHirS\noo1eVpLnAmSZCrRqX1r6W+aZUqqaHkWNcLGBWUbRQOouCxum1w9B/aYGEZE4MWwZ\neC1fnICG7n1WO6WxXh5tNarabJNaGXBKoMKZ600pEtHku0vY2GuVTLOPmgT5bV//\nPT+DpnYTV4H1BZukdQ9LOoHczTLPKf1TVK9gESakQPPKNcICXacZ6CaSEg5y99nB\nfWfQBCgGXLyaPATpvrH4NpOo9nGut57mPVRAQDyo6aolKi0YyT38gNu9SBSdCQ4p\nbv4xVVqP7uelxM1B8nBP8FgwQcji3lJVzFX0n7CCkHPvakqctBWLmF4fmeQSMEfc\nAYoDl1+bAgMBAAECggEACGrl1Pr/sjRt7iR5gKm3zvM6QGFWQEvTVmPTFjPulfIj\ndp6Ml5Hd4lOp1hAJfWZ6/7ZLl7Z2qasRcBVedFRNfCEaMGYfe9j0slgAkPDkBUN5\nKtWG8TdaMj8HalPTRb7rQe6qEIpS+mDQVqZgxLHGpx1gwIFH7gr2c6uSTSgq590Q\nCShazmLLu2AK67o8sfWqkSkdLonF9CAVeW2bbjSdjmZFwmyIEHn7ufbdwaP4WXs6\ne+ccVs0ndVQOuNswI/0W/WD/leWAFY79NtRRT1LbPR/zxN3pFVctYqMQyEow/33n\nK8e7i9vhmSJwaZjfNi1Qf9llGNCn8hyhghxUP2ngYQKBgQD3enTaal5hW/7k5I34\nYtl74+JbFsfUsDr7nvJYMbLU2eRPQdgL8DkfO4TnW8zthBPlY42uFZNvVSxbJBan\nz6USDBs2UpM6hSSuT1Pl4Jmg04rUxlhJKJyKNr610OXiqUGNjiUS5415fd9XkEw9\nmCBU8CJIfoB7l6AKIh9A2tWSHwKBgQC2q0e+HjZd2iQKp5vz5ChYip4F2xa5HQoY\nB2mOfI1UPN+qlX+hX59zmhBs/1Xuk+Sg/3EFuSOaUSgpj9V81K1E+edetLJlJrfl\ncG7/GvaETvogPqvyS8sFvrA08faCHNt8M5Wd4YXNt1TgYko8S/28QC6MwwuULNTH\nf7cnFzXbBQKBgQDOsDCOBo6Cw8Gzy4si6vP2+9Gd//2vjewFILAIpqFUEhMTesuE\n1QHwKtaKH+qcaFXxnF7FCPIU5s7f49kkGFEmLIRBr1+VXYPQLSLF9/p3DpaBtJIh\nr9BlwukukqSc1H2SSyh9jHRlBpKU4Eg8nSRLrC8F2tlV38HjFLKDiQEcQwKBgQCz\nUlGLgX09hPf8va2LL1+sC+g1N26HKsrN6/jjt8HGADxR6ZDxij2t7oBRgBeLrgOz\nSRBa3fTleOZEZr7dXKr8G5fWkOzP/8JnqohMRtvZ5u4E2YFSyrTzXs78KswjztBo\njPtDkjEYUfEwlUzrBG6Cbz9DT/X98ESx096osVBdQQKBgD0iR9VcRuOiFffEK2oK\nKiihq8JY/tKRY08M22p4DXTv/YjvYIryvj3NyabuTC3zisducvdZLc+Y4NdsYwxA\n85DLHIDDGo3yKw1DBhGT8nX1E93GhCpK/Akr0vWIXF20JlgYtWdtM+KeWWSq3Tz1\ngbRA7YGiwBC3p5d6qj/v4xBj\n-----END PRIVATE KEY-----\n",
-  "client_email": "firebase-adminsdk-fbsvc@badpinverify-fc046.iam.gserviceaccount.com",
-  "client_id": "112233780078852484185",
-  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
-  "token_uri": "https://oauth2.googleapis.com/token",
-  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
-  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-fbsvc%40badpinverify-fc046.iam.gserviceaccount.com",
-  "universe_domain": "googleapis.com"
-}
+# Node modules
+node_modules/
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Netlify Function Secrets
+/netlify/functions/firebaseServiceAccount.json
+
+# Local environment variables
+.env
+.env.*
+
+# VSCode & IDE config
+.vscode/
+.idea/
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Optional: Ignore zip files if you build them
+*.zip
