@@ -1,48 +1,38 @@
 const admin = require("firebase-admin");
 const serviceAccount = require("./serviceAccountKey.json");
 
+// Firebase initialize (Check if already initialized to avoid errors on reload)
 if (!admin.apps.length) {
   admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
-    databaseURL: "https://badpinverify-fc046-default-rtdb.firebaseio.com"
+    databaseURL: "https://badpinverify-fc046-default-rtdb.firebaseio.com",
   });
 }
 
-exports.handler = async function (event) {
-  const headers = {
-    "Access-Control-Allow-Origin": "*",
-    "Access-Control-Allow-Headers": "Content-Type",
-    "Access-Control-Allow-Methods": "GET, OPTIONS",
-  };
-
-  if (event.httpMethod === "OPTIONS") {
-    return { statusCode: 204, headers, body: "" };
-  }
-
-  const { deviceId } = event.queryStringParameters;
-
-  if (!deviceId) {
-    return {
-      statusCode: 400,
-      headers,
-      body: JSON.stringify({ error: "Missing deviceId" }),
-    };
-  }
-
+exports.handler = async (event, context) => {
   try {
-    const snapshot = await admin.database().ref(`verifiedDevices/${deviceId}`).once("value");
-    const data = snapshot.val();
+    const deviceId = event.queryStringParameters.deviceId;
+    if (!deviceId) {
+      return {
+        statusCode: 400,
+        body: JSON.stringify({ error: "Missing deviceId parameter" }),
+      };
+    }
+
+    const db = admin.database();
+    const ref = db.ref("verifiedDevices/" + deviceId);
+    const snapshot = await ref.once("value");
+    const isVerified = snapshot.exists() && snapshot.val() === true;
 
     return {
       statusCode: 200,
-      headers,
-      body: JSON.stringify({ verified: data?.verified === true }),
+      body: JSON.stringify({ verified: isVerified }),
     };
   } catch (error) {
+    console.error("Error in checkVerification:", error);
     return {
       statusCode: 500,
-      headers,
-      body: JSON.stringify({ error: error.message }),
+      body: JSON.stringify({ error: "Internal Server Error" }),
     };
   }
 };
