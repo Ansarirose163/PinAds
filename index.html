@@ -36,39 +36,67 @@
         document.addEventListener('DOMContentLoaded', function() {
             const urlParams = new URLSearchParams(window.location.search);
             const vid = urlParams.get('vid');
+            const token = urlParams.get('token');
 
-            if (!vid) {
-                document.getElementById('message').innerText = 'Verification Failed';
+            if (!vid || !token || !vid.match(/^[0-9a-fA-F]+$/) || !token.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/)) {
+                document.getElementById('message').innerText = 'Verification Failed: Invalid device ID or token';
                 document.getElementById('message').className = 'message failed';
-                console.error('Missing device ID:', vid);
+                console.error('Invalid parameters:', { vid, token });
                 return;
             }
 
-            console.log('Device ID received:', vid); // Log for debugging
+            console.log('Parameters received:', { vid, token });
             setTimeout(function() {
-                fetch('https://badpin.netlify.app/.netlify/functions/verify?vid=' + encodeURIComponent(vid), {
-                    method: 'GET'
+                fetch('https://badpin.netlify.app/.netlify/functions/verify', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ deviceId: vid, verification_token: token })
                 })
                 .then(response => {
-                    console.log('Fetch response status:', response.status); // Log status
-                    if (!response.ok) throw new Error('Network response was not ok: ' + response.status);
+                    console.log('Verify response status:', response.status);
+                    console.log('Verify response headers:', [...response.headers.entries()]);
+                    if (!response.ok) {
+                        return response.text().then(text => {
+                            throw new Error('Verify failed: ' + response.status + ' ' + text);
+                        });
+                    }
                     return response.json();
                 })
                 .then(data => {
-                    console.log('Fetch response data:', data); // Log response
-                    if (data.status === 'verified') {
+                    console.log('Verify response data:', data);
+                    if (!data.token) {
+                        throw new Error('No JWT token returned');
+                    }
+                    // Trigger tracking
+                    return fetch('https://badpin.netlify.app/.netlify/functions/track', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ deviceId: vid, verification_token: token, timestamp: Date.now() })
+                    });
+                })
+                .then(response => {
+                    console.log('Track response status:', response.status);
+                    console.log('Track response headers:', [...response.headers.entries()]);
+                    if (!response.ok) {
+                        return response.text().then(text => {
+                            throw new Error('Track failed: ' + response.status + ' ' + text);
+                        });
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Track response data:', data);
+                    if (data.status === 'tracked') {
                         document.getElementById('message').innerText = 'Verification Success ✔️';
                         document.getElementById('message').className = 'message';
                     } else {
-                        document.getElementById('message').innerText = 'Verification Failed';
-                        document.getElementById('message').className = 'message failed';
-                        console.error('Verification failed:', data.message);
+                        throw new Error('Tracking failed: ' + (data.error || 'Unknown error'));
                     }
                 })
                 .catch(err => {
-                    document.getElementById('message').innerText = 'Verification Failed';
+                    document.getElementById('message').innerText = 'Verification Failed: ' + err.message;
                     document.getElementById('message').className = 'message failed';
-                    console.error('Fetch error:', err.message);
+                    console.error('Error:', err.message);
                 });
             }, 3000);
         });
