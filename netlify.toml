@@ -1,10 +1,13 @@
 [build]
   command = "npm install"
-  functions = "netlify/functions"
   publish = "."
+  functions = "netlify/functions"
 
 [functions]
   node_bundler = "esbuild"
+
+[build.environment]
+  JWT_SECRET = "StrongSecret!"
 
 [[redirects]]
   from = "/*"
