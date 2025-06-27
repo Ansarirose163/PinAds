@@ -1,7 +1,8 @@
 exports.handler = async function(event) {
     const vid = event.queryStringParameters && event.queryStringParameters.vid;
-    console.log('Received device ID:', vid); // For debugging
-    if (vid && vid.length >= 16) {
+    console.log('Received device ID:', vid); // Log for debugging
+    if (vid && vid.trim() !== '') {
+        console.log('Device ID validated successfully');
         return {
             statusCode: 200,
             headers: { 
@@ -11,6 +12,7 @@ exports.handler = async function(event) {
             body: JSON.stringify({ status: 'verified' })
         };
     }
+    console.error('Invalid or missing device ID:', vid);
     return {
         statusCode: 400,
         headers: { 
