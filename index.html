@@ -37,30 +37,34 @@
             const urlParams = new URLSearchParams(window.location.search);
             const vid = urlParams.get('vid');
 
-            if (window.location.href.includes('badpin.netlify.app') && vid) {
-                setTimeout(function() {
-                    fetch('https://badpin.netlify.app/.netlify/functions/verify?vid=' + vid, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ status: 'verified' })
-                    }).then(response => {
-                        if (response.ok) {
-                            document.getElementById('message').innerText = 'Verification Success ✔️';
-                            document.getElementById('message').className = 'message';
-                        } else {
-                            document.getElementById('message').innerText = 'Verification Failed';
-                            document.getElementById('message').className = 'message failed';
-                        }
-                    }).catch(err => {
-                        document.getElementById('message').innerText = 'Verification Failed';
-                        document.getElementById('message').className = 'message failed';
-                        console.error('Error sending verification:', err);
-                    });
-                }, 3000);
-            } else {
+            if (!vid || vid.length < 16) {
                 document.getElementById('message').innerText = 'Verification Failed';
                 document.getElementById('message').className = 'message failed';
+                console.error('Invalid or missing device ID:', vid);
+                return;
             }
+
+            setTimeout(function() {
+                fetch('https://badpin.netlify.app/.netlify/functions/verify?vid=' + encodeURIComponent(vid), {
+                    method: 'GET'
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'verified') {
+                        document.getElementById('message').innerText = 'Verification Success ✔️';
+                        document.getElementById('message').className = 'message';
+                    } else {
+                        document.getElementById('message').innerText = 'Verification Failed';
+                        document.getElementById('message').className = 'message failed';
+                        console.error('Verification failed:', data.message);
+                    }
+                })
+                .catch(err => {
+                    document.getElementById('message').innerText = 'Verification Failed';
+                    document.getElementById('message').className = 'message failed';
+                    console.error('Fetch error:', err);
+                });
+            }, 3000);
         });
     </script>
 </body>
