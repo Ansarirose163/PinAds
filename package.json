@@ -1,9 +1,0 @@
-{
-  "name": "badpin-verification",
-  "version": "1.0.0",
-  "main": "index.js",
-  "license": "MIT",
-  "dependencies": {
-    "firebase-admin": "^11.10.1"
-  }
-}
