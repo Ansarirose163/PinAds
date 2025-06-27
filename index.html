@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome - Verification</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+        .message {
+            background: #4CAF50;
+            color: white;
+            padding: 20px;
+            font-size: 24px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        .waiting {
+            background: #2196F3;
+        }
+        .failed {
+            background: #F44336;
+        }
+    </style>
+</head>
+<body>
+    <div id="message" class="message waiting">Verification check please wait</div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const vid = urlParams.get('vid');
+
+            if (window.location.href.includes('badpin.netlify.app') && vid) {
+                setTimeout(function() {
+                    fetch('https://badpin.netlify.app/.netlify/functions/verify?vid=' + vid, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ status: 'verified' })
+                    }).then(response => {
+                        if (response.ok) {
+                            document.getElementById('message').innerText = 'Verification Success ✔️';
+                            document.getElementById('message').className = 'message';
+                        } else {
+                            document.getElementById('message').innerText = 'Verification Failed';
+                            document.getElementById('message').className = 'message failed';
+                        }
+                    }).catch(err => {
+                        document.getElementById('message').innerText = 'Verification Failed';
+                        document.getElementById('message').className = 'message failed';
+                        console.error('Error sending verification:', err);
+                    });
+                }, 3000);
+            } else {
+                document.getElementById('message').innerText = 'Verification Failed';
+                document.getElementById('message').className = 'message failed';
+            }
+        });
+    </script>
+</body>
+</html>
