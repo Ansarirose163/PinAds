@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>लिंक शॉर्टनर - PinAds</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h2>लिंक शॉर्टनर</h2>
+        <div id="error" class="error" style="display: none;"></div>
+    </div>
+    <script>
+        // Get query parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const deviceId = urlParams.get('device_id');
+        const mobileName = urlParams.get('mobile_name') || 'Unknown';
+        const model = urlParams.get('model') || 'Unknown';
+        const appName = urlParams.get('app_name') || 'Unknown';
+        const packageName = urlParams.get('package_name') || 'Unknown';
+        const appVersion = urlParams.get('app_version') || 'Unknown';
+
+        // Validate device ID
+        if (!deviceId) {
+            document.getElementById('error').innerText = 'Device ID is missing.';
+            document.getElementById('error').style.display = 'block';
+            return;
+        }
+
+        // Call Netlify function to save device
+        fetch('/.netlify/functions/save-device?device_id=' + encodeURIComponent(deviceId), {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ device_id: deviceId })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                // Redirect to verify_success.html
+                const redirectUrl = `/verify_success.html?device_id=${encodeURIComponent(deviceId)}&mobile_name=${encodeURIComponent(mobileName)}&model=${encodeURIComponent(model)}&app_name=${encodeURIComponent(appName)}&package_name=${encodeURIComponent(packageName)}&app_version=${encodeURIComponent(appVersion)}`;
+                window.location.href = redirectUrl;
+            } else {
+                document.getElementById('error').innerText = data.message || 'Failed to save device ID.';
+                document.getElementById('error').style.display = 'block';
+            }
+        })
+        .catch(error => {
+            document.getElementById('error').innerText = 'Error: ' + error.message;
+            document.getElementById('error').style.display = 'block';
+        });
+    </script>
+</body>
+</html>
