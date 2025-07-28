@@ -2,6 +2,6 @@
   "name": "pinads-verification",
   "version": "1.0.0",
   "dependencies": {
-    "fs-extra": "^10.0.0"
+    "firebase-admin": "^12.0.0"
   }
 }
