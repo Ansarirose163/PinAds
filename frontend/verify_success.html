@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Premium Access Verified - PinAds</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+        body { margin: 0; font-family: 'Inter', sans-serif; background: linear-gradient(135deg, #0f2027, #203a43, #2c5364); color: #fff; display: flex; justify-content: center; align-items: center; height: 100vh; }
+        .card { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(12px); border-radius: 20px; padding: 30px 25px; max-width: 400px; width: 90%; box-shadow: 0 8px 20px rgba(0,0,0,0.4); text-align: center; }
+        .logo { width: 80px; height: 80px; border-radius: 16px; margin-bottom: 15px; background: #222; display: inline-flex; align-items: center; justify-content: center; font-size: 36px; }
+        .verified-badge { display: inline-flex; align-items: center; background: #00e676; color: #000; font-weight: 600; padding: 6px 14px; border-radius: 999px; font-size: 14px; margin-bottom: 20px; }
+        .status-box { background: rgba(0, 255, 128, 0.1); border: 1px solid rgba(0,255,128,0.3); padding: 15px; border-radius: 14px; margin-bottom: 20px; }
+        .status-box h3 { color: #00e676; margin: 0 0 8px 0; font-size: 16px; }
+        .timer-box { background: rgba(255, 255, 255, 0.08); padding: 15px; border-radius: 14px; margin-bottom: 20px; }
+        .timer-label { font-size: 14px; color: #ccc; margin-bottom: 5px; }
+        .timer { font-size: 26px; letter-spacing: 2px; font-family: 'Courier New', monospace; }
+        .button { display: block; width: 100%; margin: 10px 0; padding: 14px 0; border-radius: 14px; text-decoration: none; font-weight: 600; text-align: center; transition: all 0.3s ease-in-out; position: relative; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.2); cursor: pointer; }
+        .primary-btn { background: linear-gradient(135deg, #ff6ec4 0%, #7873f5 50%, #4ADEDE 100%); color: #fff; box-shadow: 0 0 15px rgba(122, 110, 255, 0.5); }
+        .primary-btn::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(circle, rgba(255,255,255,0.15) 10%, transparent 70%); transform: rotate(25deg); animation: shine 2.5s linear infinite; }
+        @keyframes shine { 0% { transform: rotate(25deg) translate(-50%, -50%); } 100% { transform: rotate(25deg) translate(100%, 100%); } }
+        .primary-btn:hover { box-shadow: 0 0 25px rgba(122, 110, 255, 0.7), 0 0 40px rgba(255,110,196,0.5); opacity: 0.95; }
+        .telegram-btn { background: linear-gradient(135deg, #0088cc, #36a2eb); color: #fff; font-weight: 600; }
+        .telegram-btn:hover { opacity: 0.9; }
+        .details-btn { background: linear-gradient(135deg, #4CAF50, #8BC34A); color: #fff; font-weight: 600; }
+        .details-btn:hover { opacity: 0.9; }
+        .device-id { font-size: 12px; color: #999; margin-top: 20px; word-break: break-word; }
+        .details-box { display: none; background: rgba(255, 255, 255, 0.1); padding: 15px; border-radius: 14px; margin-top: 20px; text-align: left; }
+        .details-box p { margin: 5px 0; font-size: 14px; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <div class="logo">✔</div>
+        <h2>Premium Access Verification</h2>
+        <div class="verified-badge">Premium Active</div>
+
+        <button class="button details-btn" onclick="toggleDetails()">Show Device Details</button>
+        <div class="details-box" id="detailsBox"></div>
+
+        <div class="status-box">
+            <h3>Your premium access is active</h3>
+            <p>All features are unlocked. Enjoy your experience!</p>
+        </div>
+
+        <div class="timer-box">
+            <div class="timer-label">PREMIUM ACCESS EXPIRES IN:</div>
+            <div class="timer" id="timer">23:59:59</div>
+        </div>
+
+        <a href="#" class="button primary-btn">← Return to App</a>
+        <a href="https://telegram.me/ansari163" class="button telegram-btn">📲 Join Telegram</a>
+
+        <div class="device-id" id="deviceIdDisplay"></div>
+    </div>
+
+    <script>
+        // Get query parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const deviceId = urlParams.get('device_id');
+        const mobileName = urlParams.get('mobile_name') || 'Unknown';
+        const model = urlParams.get('model') || 'Unknown';
+        const appName = urlParams.get('app_name') || 'Unknown';
+        const packageName = urlParams.get('package_name') || 'Unknown';
+        const appVersion = urlParams.get('app_version') || 'Unknown';
+
+        // Validate device ID and check verification
+        if (!deviceId) {
+            window.location.href = 'https://pinads.netlify.app/Failed.html';
+        } else {
+            fetch('/.netlify/functions/check-verification?device_id=' + encodeURIComponent(deviceId))
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status !== 'verified') {
+                        window.location.href = 'https://pinads.netlify.app/Failed.html';
+                    } else {
+                        // Populate device details
+                        const detailsBox = document.getElementById('detailsBox');
+                        detailsBox.innerHTML = `
+                            <p><strong>Mobile Name:</strong> ${mobileName}</p>
+                            <p><strong>Model:</strong> ${model}</p>
+                            <p><strong>App Name:</strong> ${appName}</p>
+                            <p><strong>Package Name:</strong> ${packageName}</p>
+                            <p><strong>App Version:</strong> ${appVersion}</p>
+                            <p><strong>Device ID:</strong> ${deviceId}</p>
+                        `;
+                        document.getElementById('deviceIdDisplay').innerText = `Device ID: ${deviceId.slice(0, 4)}...${deviceId.slice(-4)}`;
+
+                        // Timer logic
+                        const createdAt = new Date(data.created_at).getTime();
+                        const twentyFourHours = 24 * 60 * 60 * 1000;
+                        const targetTime = createdAt + twentyFourHours;
+
+                        function updateTimer() {
+                            const now = new Date().getTime();
+                            const distance = targetTime - now;
+
+                            if (distance <= 0) {
+                                document.getElementById("timer").innerHTML = "00:00:00";
+                                clearInterval(timerInterval);
+                                fetch('/.netlify/functions/delete-device?device_id=' + encodeURIComponent(deviceId))
+                                    .then(response => response.json())
+                                    .then(data => {
+                                        if (data.status === 'deleted') {
+                                            console.log('Device ID deleted');
+                                        }
+                                    })
+                                    .catch(error => console.error('Deletion error:', error));
+                                return;
+                            }
+
+                            let hours = Math.floor((distance / (1000 * 60 * 60)));
+                            let minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                            let seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+                            document.getElementById("timer").innerHTML =
+                                String(hours).padStart(2, '0') + ":" +
+                                String(minutes).padStart(2, '0') + ":" +
+                                String(seconds).padStart(2, '0');
+                        }
+
+                        const timerInterval = setInterval(updateTimer, 1000);
+                        updateTimer();
+                    }
+                })
+                .catch(error => {
+                    window.location.href = 'https://pinads.netlify.app/Failed.html';
+                });
+        }
+
+        function toggleDetails() {
+            const detailsBox = document.getElementById('detailsBox');
+            detailsBox.style.display = detailsBox.style.display === 'none' || detailsBox.style.display === '' ? 'block' : 'none';
+        }
+    </script>
+</body>
+</html>
